@@ -3,11 +3,12 @@ package com.juanjose.apigestordeusuarios.service;
 import com.juanjose.apigestordeusuarios.dto.CreateUserRequestDto;
 import com.juanjose.apigestordeusuarios.dto.ResponseUserDto;
 import com.juanjose.apigestordeusuarios.entity.User;
+import com.juanjose.apigestordeusuarios.exceptions.EmailAlreadyExistsException;
+import com.juanjose.apigestordeusuarios.exceptions.UserNotFoundException;
 import com.juanjose.apigestordeusuarios.mapper.UserMapper;
 import com.juanjose.apigestordeusuarios.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.NoSuchElementException;
 
 
 @Service
@@ -22,13 +23,19 @@ public class UserService {
     }
 
     public ResponseUserDto addUser(CreateUserRequestDto request){
-        User created = userRepository.save(userMapper.createUserToEntity(request));
+        if(userRepository.existsByEmail(request.email())){
+            throw new EmailAlreadyExistsException(request.email());
+        }
+        User created = userMapper.createUserToEntity(request);
+        userRepository.save(created);
         return userMapper.entityToResponseDto(created);
     }
 
-    public User getUser(Long id){
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+    public ResponseUserDto getUser(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        return userMapper.entityToResponseDto(user);
     }
 
 
