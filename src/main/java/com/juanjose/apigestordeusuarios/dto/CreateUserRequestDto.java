@@ -1,9 +1,6 @@
 package com.juanjose.apigestordeusuarios.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 
 public record CreateUserRequestDto(
         @Pattern (
@@ -12,7 +9,7 @@ public record CreateUserRequestDto(
         @Pattern(
                 regexp = "^[A-aZ-z ]+$"
         )@NotBlank String surname,
-        @Positive Integer age,
+        @Positive @Min(18) @Max(100) Integer age,
         @NotBlank @Email String email,
         @NotBlank  String password
 ) {
